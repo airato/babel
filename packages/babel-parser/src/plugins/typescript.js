@@ -1293,7 +1293,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
 
       switch (starttype) {
         case tt._function:
-          return this.parseFunctionStatement(nany);
+          return this.parseFunctionStatement(nany, false, true);
         case tt._class:
           return this.parseClass(
             nany,
@@ -1557,6 +1557,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
           ? "TSDeclareMethod"
           : undefined;
       if (bodilessType && !this.match(tt.braceL) && this.isLineTerminator()) {
+        this.scope.exit();
         this.finishNode(node, bodilessType);
         return;
       }
