@@ -1558,6 +1558,9 @@ export default (superClass: Class<Parser>): Class<Parser> =>
           : undefined;
       if (bodilessType && !this.match(tt.braceL) && this.isLineTerminator()) {
         this.scope.exit();
+        if (node.id && node.id.name) {
+          this.scope.currentScope().lastBodylessFunctionName = node.id.name;
+        }
         this.finishNode(node, bodilessType);
         return;
       }

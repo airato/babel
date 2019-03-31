@@ -27,6 +27,8 @@ class Scope {
   lexical: string[] = [];
   // A list of lexically-declared FunctionDeclaration names in the current lexical scope
   functions: string[] = [];
+  // keep tarck for bodyless TS function declarations, used in overloads
+  lastBodylessFunctionName: string = null;
 
   constructor(flags: ScopeFlags) {
     this.flags = flags;
@@ -97,6 +99,12 @@ export default class ScopeHandler {
         scope.functions.indexOf(name) > -1 ||
         scope.var.indexOf(name) > -1;
       scope.lexical.push(name);
+      if (scope.lastBodylessFunctionName) {
+        if (redeclared && scope.lastBodylessFunctionName === name) {
+          redeclared = false;
+        }
+        scope.lastBodylessFunctionName = null;
+      }
       if (this.inModule && scope.flags & SCOPE_PROGRAM) {
         this.undefinedExports.delete(name);
       }
