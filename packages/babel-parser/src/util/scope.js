@@ -27,6 +27,8 @@ class Scope {
   lexical: string[] = [];
   // A list of lexically-declared FunctionDeclaration names in the current lexical scope
   functions: string[] = [];
+  // A list of declared TS type, interface and enum names in the current lexical scope, that can be exported
+  exportableTypeDeclarations: string[] = [];
   // keep tarck for bodyless TS function declarations, used in overloads
   lastBodylessFunctionName: string = null;
 
@@ -88,6 +90,13 @@ export default class ScopeHandler {
       scope.flags & SCOPE_FUNCTION ||
       (!this.inModule && scope.flags & SCOPE_PROGRAM)
     );
+  }
+
+  declareExportableTypeName(name: string) {
+    const scope = this.currentScope();
+    if (this.inModule && scope.flags & SCOPE_PROGRAM) {
+      scope.exportableTypeDeclarations.push(name);
+    }
   }
 
   declareName(name: string, bindingType: ?BindingTypes, pos: number) {
@@ -153,7 +162,9 @@ export default class ScopeHandler {
       // In strict mode, scope.functions will always be empty.
       // Modules are strict by default, but the `scriptMode` option
       // can overwrite this behavior.
-      this.scopeStack[0].functions.indexOf(id.name) === -1
+      this.scopeStack[0].functions.indexOf(id.name) === -1 &&
+      // scope.exportableTypeDeclarations can have values only in TypeScript
+      this.scopeStack[0].exportableTypeDeclarations.indexOf(id.name) === -1
     ) {
       this.undefinedExports.set(id.name, id.start);
     }

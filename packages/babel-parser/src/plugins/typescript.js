@@ -1050,6 +1050,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
       node: N.TsInterfaceDeclaration,
     ): N.TsInterfaceDeclaration {
       node.id = this.parseIdentifier();
+      this.scope.declareExportableTypeName(node.id.name);
       node.typeParameters = this.tsTryParseTypeParameters();
       if (this.eat(tt._extends)) {
         node.extends = this.tsParseHeritageClause("extends");
@@ -1064,6 +1065,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
       node: N.TsTypeAliasDeclaration,
     ): N.TsTypeAliasDeclaration {
       node.id = this.parseIdentifier();
+      this.scope.declareExportableTypeName(node.id.name);
       node.typeParameters = this.tsTryParseTypeParameters();
       node.typeAnnotation = this.tsExpectThenParseType(tt.eq);
       this.semicolon();
@@ -1132,6 +1134,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
     ): N.TsEnumDeclaration {
       if (isConst) node.const = true;
       node.id = this.parseIdentifier();
+      this.scope.declareExportableTypeName(node.id.name);
       this.expect(tt.braceL);
       node.members = this.tsParseDelimitedList(
         "EnumMembers",
@@ -1161,6 +1164,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
       node: N.TsModuleDeclaration,
     ): N.TsModuleDeclaration {
       node.id = this.parseIdentifier();
+      this.scope.declareExportableTypeName(node.id.name);
       if (this.eat(tt.dot)) {
         const inner = this.startNode();
         this.tsParseModuleOrNamespaceDeclaration(inner);
